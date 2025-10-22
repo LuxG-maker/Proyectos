@@ -1,0 +1,90 @@
+:root {
+  --blue: #2563eb;
+  --green: #10b981;
+  --dark: #0f172a;
+  --light: #f8fafc;
+  --font-head: 'Pacifico', serif;
+  --font-body: 'Poppins', sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--light);
+  color: var(--dark);
+  margin: 0;
+}
+
+/* Encabezado */
+.sub-header {
+  background: linear-gradient(90deg, var(--blue), var(--green));
+}
+.brand-title {
+  font-family: var(--font-head);
+  font-size: 1.8rem;
+}
+.brand-blue { color: var(--blue); }
+.brand-green { color: var(--green); }
+
+/* Calendario */
+.calendar-container {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.calendar-header {
+  background: linear-gradient(90deg, var(--blue), var(--green));
+  color: #fff;
+}
+.day-names {
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  background-color: #e2e8f0;
+  font-weight: 600;
+  padding: 0.5rem 0;
+}
+.days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  gap: 2px;
+  padding: 10px;
+  background-color: #f1f5f9;
+}
+.day {
+  background-color: #fff;
+  padding: 0.8rem 0;
+  border-radius: 8px;
+  cursor: pointer;
+  min-height: 90px;
+  position: relative;
+  transition: background 0.2s;
+}
+.day:hover {
+  background-color: #e0f2fe;
+}
+.day.inactive {
+  color: #94a3b8;
+  opacity: 0.6;
+}
+.day .event-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--green);
+  border-radius: 50%;
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Footer */
+.footer {
+  font-size: 0.95rem;
+}
+.footer .brand-title {
+  font-size: 1.4rem;
+}
+
+.nav-pill{padding:.5rem .85rem;border-radius:.5rem;color:var(--muted);text-decoration:none;font-weight:600}
+.nav-pill:hover{color:var(--blue);background:#f1f5f9}
+.nav-pill.active{color:var(--blue);background:rgba(37,99,235,0.06)}

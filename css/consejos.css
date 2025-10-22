@@ -1,0 +1,80 @@
+:root {
+  --blue: #2563eb;
+  --green: #10b981;
+  --dark: #0f172a;
+  --muted: #6b7280;
+  --font-head: 'Pacifico', serif;
+  --font-body: 'Poppins', sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--dark);
+  background-color: #fff;
+  margin: 0;
+}
+
+/* Encabezado */
+.sub-header {
+  background: linear-gradient(90deg, var(--blue), var(--green));
+}
+.brand-title {
+  font-family: var(--font-head);
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+.brand-blue { color: var(--blue); }
+.brand-green { color: var(--green); }
+
+/* Tarjetas */
+.card {
+  border: none;
+  border-radius: 14px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 25px rgba(16, 24, 40, 0.1);
+}
+.card-img-top {
+  height: 200px;
+  object-fit: cover;
+}
+/*videos*/
+section{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  width: 70%;
+}
+.cv{
+  display: flex;
+  width: 49%;
+  justify-content: space-around;
+}
+.cb{
+  text-align: center;
+  width: 90%;
+  margin: 20px;
+}
+
+/* Frase final */
+blockquote {
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* Footer */
+.footer {
+  font-size: 0.95rem;
+}
+.footer .brand-title {
+  font-size: 1.4rem;
+}
+
+.nav-pill{padding:.5rem .85rem;border-radius:.5rem;color:var(--muted);text-decoration:none;font-weight:600}
+.nav-pill:hover{color:var(--blue);background:#f1f5f9}
+.nav-pill.active{color:var(--blue);background:rgba(37,99,235,0.06)}

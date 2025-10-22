@@ -1,1 +1,252 @@
-<h1>Que Onda gente</h1>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mi Tiempo - Transforma tu Gestión del Tiempo</title>
+  <meta name="description" content="Aprende a gestionar tu tiempo eficientemente con juegos, consejos, calendarios y herramientas organizacionales. Solo Mi Tiempo.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <header class="site-header sticky-top shadow-sm bg-white">
+    <div class="container">
+      <div class="d-flex align-items-center justify-content-between py-3">
+        <a class="d-flex align-items-center text-decoration-none" href="#">
+          <div class="brand-title">
+            <span class="brand-blue">Mi</span><span class="brand-green"> Tiempo</span>
+          </div>
+        </a>
+        <nav class="d-none d-md-flex gap-3 align-items-center">
+          <a class="nav-pill active" href="/index.html">Inicio</a>
+          <a class="nav-pill" href="/consejos.html">Consejos</a>
+          <a class="nav-pill" href="/calendario.html">Calendario</a>
+          <a class="nav-pill" href="/Organizador.html">Organizador</a>
+          <a class="nav-pill" href="/recursos.html">Recursos</a>
+        </nav>
+        <div class="d-none d-md-block">
+          <a href="#" class="btn btn-primary btn-lg"><i class="ri-calendar-line me-2"></i>Mi Calendario</a>
+        </div>
+        <button class="btn btn-light d-md-none" id="mobileMenuBtn"><i class="ri-menu-line fs-4"></i></button>
+      </div>
+    </div>
+  </header>
+
+  <div id="mobileMenu" class="mobile-menu d-md-none">
+    <div class="mobile-menu-inner">
+      <a href="#" class="d-block py-2">Inicio</a>
+      <a href="#" class="d-block py-2">Consejos</a>
+      <a href="#" class="d-block py-2">Calendario</a>
+      <a href="#" class="d-block py-2">Organizador</a>
+      <a href="#" class="d-block py-2">Recursos</a>
+    </div>
+  </div>
+
+  <main>
+    <section class="hero-section d-flex align-items-center text-white" style="background-image: linear-gradient(rgba(59,130,246,0.85), rgba(16,185,129,0.85)), url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1400&q=60');">
+      <div class="container">
+        <div class="row align-items-center gy-4">
+          <div class="col-lg-6 text-center text-lg-start">
+            <h1 class="display-2" style="font-family: 'Pacifico', serif;">Mi Tiempo</h1>
+            <p class="lead text-light">Solo Mi Tiempo</p>
+            <p class="hero-desc text-light">Descubre el poder de gestionar tu tiempo de manera inteligente. Transforma cada momento en una oportunidad de crecimiento personal y profesional.</p>
+            <div class="d-flex gap-3 justify-content-center justify-content-lg-start flex-column flex-sm-row">
+              <button class="btn btn-white btn-lg text-primary px-4"><i class="ri-play-fill me-2"></i>Comenzar Ahora</button>
+              <button class="btn btn-outline-light btn-lg px-4"><i class="ri-information-line me-2"></i>Saber Más</button>
+            </div>
+          </div>
+          <div class="col-lg-6 d-flex justify-content-center">
+            <div class="clock-and-panel">
+              <svg class="analogue-clock" viewBox="0 0 256 256" width="280" height="280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Reloj">
+                <circle cx="128" cy="128" r="120" fill="transparent" stroke="#cbd5e1" stroke-width="2"/>
+                <g class="clock-numbers" fill="#374151" font-family="Poppins, sans-serif" font-weight="600" text-anchor="middle" dominant-baseline="central">
+                  <text x="128" y="42" font-size="16">12</text>
+                  <text x="166" y="63" font-size="14">1</text>
+                  <text x="194" y="91" font-size="14">2</text>
+                  <text x="206" y="128" font-size="14">3</text>
+                  <text x="194" y="166" font-size="14">4</text>
+                  <text x="166" y="195" font-size="14">5</text>
+                  <text x="128" y="206" font-size="14">6</text>
+                  <text x="90" y="195" font-size="14">7</text>
+                  <text x="62" y="166" font-size="14">8</text>
+                  <text x="50" y="128" font-size="14">9</text>
+                  <text x="62" y="91" font-size="14">10</text>
+                  <text x="90" y="63" font-size="14">11</text>
+                </g>
+                <line id="hourHand" x1="128" y1="128" x2="128" y2="80" stroke="#0f172a" stroke-width="5" stroke-linecap="round" transform-origin="128px 128px"/>
+                <line id="minuteHand" x1="128" y1="128" x2="128" y2="58" stroke="#0f172a" stroke-width="3" stroke-linecap="round" transform-origin="128px 128px"/>
+                <line id="secondHand" x1="128" y1="128" x2="128" y2="48" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round" transform-origin="128px 128px"/>
+                <circle cx="128" cy="128" r="4" fill="#0f172a"/>
+              </svg>
+
+              <div class="digital-panel text-center mt-3">
+                <div id="digitalTime" class="digital-time display-6 fw-bold text-white">00:00:00</div>
+                <div id="digitalDate" class="digital-date text-white-75">martes, 14 de octubre de 2025</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="py-5 bg-light" data-aos="fade-up">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="fw-bold">Todo lo que Necesitas para Dominar tu Tiempo</h2>
+          <p class="text-muted">Descubre nuestras herramientas diseñadas para transformar tu relación con el tiempo</p>
+        </div>
+        <div class="CY">
+          <div class="CX">
+            <div class="width:100%">
+              <div class="card h-100 card-feature">
+                <img src="https://picsum.photos/seed/gest/800/450" class="card-img-top" alt="Gestión Inteligente">
+                <div class="card-body d-flex flex-column">
+                  <h5 class="card-title">Gestión Inteligente</h5>
+                  <p class="card-text text-muted flex-grow-1">Optimiza tu tiempo con técnicas probadas y herramientas avanzadas que se adaptan a tu estilo de vida.</p>
+                  <a href="#" class="btn btn-outline-primary mt-3 w-100">Explorar <i class="ri-arrow-right-line ms-2"></i></a>
+                </div>
+              </div>
+            </div>
+
+            <div class="width:100%">
+              <div class="card h-100 card-feature">
+                <img src="https://picsum.photos/seed/obj/800/450" class="card-img-top" alt="Objetivos Claros">
+                <div class="card-body d-flex flex-column">
+                  <h5 class="card-title">Objetivos Claros</h5>
+                  <p class="card-text text-muted flex-grow-1">Define y alcanza tus metas con un sistema de seguimiento que te mantiene enfocado en lo importante.</p>
+                  <a href="#" class="btn btn-outline-primary mt-3 w-100">Explorar <i class="ri-arrow-right-line ms-2"></i></a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="CX">
+            <div class="Man"><video src="./Multimedia/2.mp4" class="video" controls></video></div>
+          </div>
+          <div class="CX">
+            <div cdalass="width:100%">
+              <div class="card h-100 card-feature">
+                <img src="https://picsum.photos/seed/anal/800/450" class="card-img-top" alt="Análisis Profundo">
+                <div class="card-body d-flex flex-column">
+                  <h5 class="card-title">Análisis Profundo</h5>
+                  <p class="card-text text-muted flex-grow-1">Comprende cómo usas tu tiempo con reportes detallados y métricas que impulsan tu productividad.</p>
+                  <a href="#" class="btn btn-outline-primary mt-3 w-100">Explorar <i class="ri-arrow-right-line ms-2"></i></a>
+                </div>
+              </div>
+            </div>
+
+            <div class="width:100%">
+              <div class="card h-100 card-feature">
+                <img src="https://picsum.photos/seed/collab/800/450" class="card-img-top" alt="Colaboración">
+                <div class="card-body d-flex flex-column">
+                  <h5 class="card-title">Colaboración</h5>
+                  <p class="card-text text-muted flex-grow-1">Coordina proyectos y tareas en equipo con herramientas diseñadas para la productividad grupal.</p>
+                  <a href="#" class="btn btn-outline-primary mt-3 w-100">Explorar <i class="ri-arrow-right-line ms-2"></i></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-5 text-white stats-section" data-aos="fade-up">
+      <div class="container">
+        <div class="text-center mb-4">
+          <h2 class="fw-bold">Resultados que Hablan por Sí Solos</h2>
+          <p class="text-white-50">Miles de personas ya han transformado su relación con el tiempo</p>
+        </div>
+        <div class="row gy-4">
+          <div class="col-md-3 text-center">
+            <div class="stat-num">25%</div>
+            <div class="stat-label">Aumento en Productividad</div>
+            <div class="text-white-50">Usuarios reportan mejoras significativas en su eficiencia diaria</div>
+          </div>
+          <div class="col-md-3 text-center">
+            <div class="stat-num">2.5h</div>
+            <div class="stat-label">Tiempo Recuperado Diario</div>
+            <div class="text-white-50">Promedio de horas que nuestros usuarios ahorran cada día</div>
+          </div>
+          <div class="col-md-3 text-center">
+            <div class="stat-num">90%</div>
+            <div class="stat-label">Reducción del Estrés</div>
+            <div class="text-white-50">De los usuarios experimentan menos ansiedad por el tiempo</div>
+          </div>
+          <div class="col-md-3 text-center">
+            <div class="stat-num">15min</div>
+            <div class="stat-label">Tiempo de Práctica Diaria</div>
+            <div class="text-white-50">Es todo lo que necesitas para ver resultados</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-5 bg-white testimonials" data-aos="fade-up">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="fw-bold">Lo que Dicen Nuestros Usuarios</h2>
+          <p class="text-muted">Historias reales de personas que transformaron su tiempo</p>
+        </div>
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="card p-4 text-center h-100">
+              <img src="./Multimedia/pj1.jpg" class="rounded-circle mx-auto mb-3 50px" alt="María" id="pj">
+              <div class="mb-3"><i class="ri-star-fill text-warning"></i><i class="ri-star-fill text-warning"></i><i class="ri-star-fill text-warning"></i><i class="ri-star-fill text-warning"></i><i class="ri-star-fill text-warning"></i></div>
+              <blockquote class="blockquote text-muted">"Antes vivía corriendo de un lado a otro sin lograr nada. Ahora tengo control total sobre mi tiempo y he aumentado mi productividad un 40%."</blockquote>
+              <div class="fw-semibold">María González</div>
+              <div class="text-muted">Emprendedora</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card p-4 text-center h-100">
+              <img src="./Multimedia/pj2.jpg" class="rounded-circle mx-auto mb-3 " alt="Carlos" id="pj">
+              <div class="mb-3"><i class="ri-star-fill text-warning"></i><i class="ri-star-fill text-warning"></i><i class="ri-star-fill text-warning"></i><i class="ri-star-fill text-warning"></i><i class="ri-star-fill text-warning"></i></div>
+              <blockquote class="blockquote text-muted">"Los juegos de tiempo me ayudaron a entender mejor mis patrones. Ahora gestiono 3 proyectos simultáneamente sin estrés."</blockquote>
+              <div class="fw-semibold">Carlos Ruiz</div>
+              <div class="text-muted">Gerente de Proyectos</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card p-4 text-center h-100">
+              <img src="./Multimedia/pj3.jpg" class="rounded-circle mx-auto mb-3 50px" alt="Ana" id="pj">
+              <div class="mb-3"><i class="ri-star-fill text-warning"></i><i class="ri-star-fill text-warning"></i><i class="ri-star-fill text-warning"></i><i class="ri-star-fill text-warning"></i><i class="ri-star-fill text-warning"></i></div>
+              <blockquote class="blockquote text-muted">"El organizador de tareas cambió mi vida académica. Pasé de procrastinar todo a tener mis estudios perfectamente planificados."</blockquote>
+              <div class="fw-semibold">Ana Martínez</div>
+              <div class="text-muted">Estudiante Universitaria</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!--<section class="py-5 cta-section text-white" data-aos="fade-up">
+      <div class="container text-center">
+        <h2 class="display-6 fw-bold">¿Listo para Transformar tu Tiempo?</h2>
+        <p class="lead text-light">Únete a miles de personas que ya han convertido el caos en calma y el estrés en éxito. Comienza tu transformación hoy mismo.</p>
+        <div class="d-flex gap-3 justify-content-center mt-4">
+          <a href="#" class="btn btn-lg btn-primary px-4"><i class="ri-rocket-line me-2"></i>Comenzar Ahora</a>
+          <a href="#" class="btn btn-lg btn-outline-light px-4"><i class="ri-download-line me-2"></i>Descargar Recursos</a>
+        </div>
+        <div class="mt-4 row text-center">
+          <div class="col-md-4"><i class="ri-check-line fs-2 mb-2"></i><div class="fw-medium">100% Gratuito</div></div>
+          <div class="col-md-4"><i class="ri-time-line fs-2 mb-2"></i><div class="fw-medium">Resultados en 7 días</div></div>
+          <div class="col-md-4"><i class="ri-group-line fs-2 mb-2"></i><div class="fw-medium">+10,000 usuarios</div></div>
+        </div>
+      </div>
+    </section> -->
+  </main>
+
+<footer class="bg-dark text-light py-4 text-center">
+    <div class="brand-title mb-2"><span class="brand-blue">Mi</span><span class="brand-green"> Tiempo</span></div>
+    <div class="small text-muted">© 2025 Mi Tiempo — Organiza tu día.</div>
+</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="./js/script.js"></script>
+</body>
+</html>

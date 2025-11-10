@@ -1,5 +1,34 @@
 AOS.init({duration:700,easing:'ease-out-back',once:true});
 
+function updateClock() {
+  const now = new Date();
+
+  // Obtener hora, minutos y segundos
+  let hours = now.getHours();
+  let minutes = now.getMinutes();
+  let seconds = now.getSeconds();
+
+  // Formatear con ceros
+  hours = hours.toString().padStart(2, '0');
+  minutes = minutes.toString().padStart(2, '0');
+  seconds = seconds.toString().padStart(2, '0');
+
+  // Mostrar la hora
+  document.getElementById('digitalTime').textContent = `${hours}:${minutes}:${seconds}`;
+
+  // Mostrar la fecha completa
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const formattedDate = now.toLocaleDateString('es-CO', options);
+  document.getElementById('digitalDate').textContent = formattedDate;
+}
+
+// Actualizar cada segundo
+setInterval(updateClock, 1000);
+updateClock(); // Ejecutar inmediatamente al cargar
+
+
+
+
 document.getElementById('mobileMenuBtn').addEventListener('click',function(){
   var m=document.getElementById('mobileMenu');
   m.style.display = m.style.display === 'block' ? 'none' : 'block';

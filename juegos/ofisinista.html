@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Office Run — Escapa del Tiempo</title>
+<style>
+  :root{
+    --bg1: #071428;
+    --bg2: #0f3760;
+    --accent: #ffd166;
+    --ground: #183040;
+    --obstacle: #ff6b6b;
+    --player: #ffd166;
+    --brief: #4b5563;
+    --text: #e6f0ff;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: linear-gradient(180deg,var(--bg1),var(--bg2));
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    color:var(--text);
+    padding:18px;
+  }
+
+  .wrap{width:100%;max-width:1100px}
+  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  h1{margin:0;font-size:20px}
+  .ui{display:flex;gap:12px;align-items:center}
+  .panel{background:rgba(255,255,255,0.03);padding:8px 12px;border-radius:10px;backdrop-filter:blur(4px)}
+  button{background:linear-gradient(90deg,#4f46e5,#06b6d4);border:none;color:white;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600}
+  canvas{display:block;width:100%;height:auto;border-radius:12px;box-shadow:0 10px 40px rgba(2,6,23,0.6)}
+  .footer{margin-top:10px;font-size:13px;color:rgba(230,240,255,0.7)}
+  .overlay{
+    position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+    background:rgba(2,6,23,0.6);z-index:30;backdrop-filter:blur(4px);
+  }
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));padding:20px;border-radius:12px;text-align:center;color:var(--text);width:90%;max-width:520px}
+  .big{font-size:28px;margin:8px 0}
+  .muted{color:rgba(230,240,255,0.7);font-size:14px}
+  .controls{display:flex;gap:8px;justify-content:center;margin-top:12px}
+  .small{font-size:13px}
+  .lives{display:flex;gap:6px;align-items:center}
+  .lifeDot{width:16px;height:16px;border-radius:50%;background:#ff6363;box-shadow:0 2px 6px rgba(255,99,99,0.4)}
+  @media (max-width:720px){ .card{padding:14px} h1{font-size:16px} }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Office Run — Escapa del tiempo</h1>
+        <div class="muted small">Cada segundo que pasa... el tiempo acelera. 🕒</div>
+      </div>
+      <div class="ui">
+        <div class="panel small">Tiempo: <span id="uiTime">0.0</span>s</div>
+        <div class="panel small">Puntos: <span id="uiScore">0</span></div>
+        <div class="panel small lives" id="uiLives"></div>
+        <div><button id="pauseBtn">⏸ Pausa</button></div>
+      </div>
+    </header>
+
+    <canvas id="game" width="1000" height="450"></canvas>
+
+    <div class="footer muted">Controles: Barra / Flecha arriba para saltar (doble salto). A/D o ←→ para moverte. P para pausar.</div>
+  </div>
+
+  <div id="startOverlay" class="overlay">
+    <div class="card">
+      <div class="big">🏃‍♂️ Office Run</div>
+      <div class="muted">Eres un oficinista escapando del tiempo ⏰.  
+        Corre, salta, y evita los obstáculos... cada segundo se vuelve más rápido.</div>
+      <div class="controls">
+        <button id="startBtn">▶ Empezar</button>
+        <button id="howBtn">❓ Cómo jugar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="gameOverOverlay" class="overlay" style="display:none">
+    <div class="card">
+      <div class="big" id="endTitle">Game Over</div>
+      <div class="muted" id="endText">Duraste X segundos</div>
+      <div class="controls">
+        <button id="restartBtn">🔁 Reintentar</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+const groundY = H - 70;
+
+let running = false, paused = false;
+let startTime = 0, elapsed = 0, score = 0, lives = 3;
+const maxLives = 3;
+
+const uiTime = document.getElementById('uiTime');
+const uiScore = document.getElementById('uiScore');
+const uiLives = document.getElementById('uiLives');
+const pauseBtn = document.getElementById('pauseBtn');
+const startOverlay = document.getElementById('startOverlay');
+const gameOverOverlay = document.getElementById('gameOverOverlay');
+const startBtn = document.getElementById('startBtn');
+const restartBtn = document.getElementById('restartBtn');
+const howBtn = document.getElementById('howBtn');
+
+function updateUILives(){
+  uiLives.innerHTML='';
+  for(let i=0;i<lives;i++){
+    const d=document.createElement('div');
+    d.className='lifeDot';
+    uiLives.appendChild(d);
+  }
+}
+updateUILives();
+
+const player = {x:120,y:groundY,w:40,h:54,vy:0,gravity:0.9,jumpPower:14,jumpsLeft:2,maxJumps:2,grounded:true};
+let obstacles=[],decoration=[],scrollSpeed=4.5,spawnTimer=0,spawnInterval=90;
+
+function rand(min,max){return Math.random()*(max-min)+min;}
+function rectsOverlap(a,b){return !(a.x+a.w<b.x||a.x>b.x+b.w||a.y+a.h<b.y||a.y>b.y+b.h);}
+
+let keys={};
+window.addEventListener('keydown',e=>{
+  keys[e.code]=true;
+  if(['Space','ArrowUp','KeyW'].includes(e.code))jump();
+  if(e.code==='KeyP')togglePause();
+});
+window.addEventListener('keyup',e=>keys[e.code]=false);
+canvas.addEventListener('touchstart',e=>{e.preventDefault();jump();});
+
+function jump(){
+  if(!running||paused)return;
+  if(player.jumpsLeft>0){
+    player.vy=-player.jumpPower;
+    player.jumpsLeft--;
+  }
+}
+
+function spawnObstacle(){
+  const typeRoll=Math.random(),baseX=W+40;
+  if(typeRoll<0.5){obstacles.push({x:baseX,y:groundY-rand(30,80),w:rand(28,68),h:rand(30,80),type:'box'});}
+  else if(typeRoll<0.75){obstacles.push({x:baseX,y:groundY-20,w:rand(80,160),h:20,type:'spikes'});}
+  else{obstacles.push({x:baseX,y:groundY-rand(150,220),w:rand(36,60),h:rand(28,46),type:'fly'});}
+}
+function spawnDecoration(){decoration.push({x:W+rand(20,400),y:rand(40,180),w:rand(40,100),speed:scrollSpeed*0.4});}
+
+function checkCollisions(){
+  const pBox={x:player.x,y:player.y-player.h,w:player.w,h:player.h};
+  for(let i=0;i<obstacles.length;i++){
+    if(rectsOverlap(pBox,obstacles[i])){obstacles.splice(i,1);loseLife();return;}
+  }
+}
+function loseLife(){
+  lives--;updateUILives();
+  if(lives<=0)endGame();
+  else player.x=Math.max(80,player.x-60);
+}
+
+let frame=0;
+function startGame(){
+  running=true;paused=false;startOverlay.style.display='none';gameOverOverlay.style.display='none';
+  startTime=Date.now();elapsed=0;score=0;lives=maxLives;updateUILives();
+  obstacles=[];decoration=[];scrollSpeed=4.5;player.y=groundY;player.vy=0;player.jumpsLeft=player.maxJumps;
+  requestAnimationFrame(loop);
+}
+function endGame(){
+  running=false;
+  document.getElementById('endText').textContent=`Duraste ${elapsed.toFixed(1)}s — Puntos: ${Math.floor(score)}`;
+  gameOverOverlay.style.display='flex';
+}
+function togglePause(){
+  if(!running)return;
+  paused=!paused;
+  pauseBtn.textContent=paused?'▶ Reanudar':'⏸ Pausa';
+  if(!paused){startTime=Date.now()-elapsed*1000;requestAnimationFrame(loop);}
+}
+pauseBtn.addEventListener('click',togglePause);
+startBtn.addEventListener('click',startGame);
+restartBtn.addEventListener('click',startGame);
+howBtn.addEventListener('click',()=>alert('Salta (Barra o ↑), doble salto en aire. A/D para moverte. Cada segundo la velocidad aumenta.'));
+
+function loop(){
+  if(!running)return;
+  if(paused){requestAnimationFrame(loop);return;}
+  frame++;
+  elapsed=(Date.now()-startTime)/1000;
+  uiTime.textContent=elapsed.toFixed(1);
+  score+=0.15+scrollSpeed*0.1;
+  uiScore.textContent=Math.floor(score);
+
+  // ⚡ Aceleración progresiva con el tiempo
+  scrollSpeed += 0.0009; // Aumenta constantemente con cada frame (~60/s)
+  if(scrollSpeed > 30) scrollSpeed += 0.0015; // si ya es rápido, acelera más (se vuelve imposible)
+  
+  spawnTimer++;
+  if(spawnTimer>spawnInterval){
+    spawnTimer=0;
+    spawnInterval=Math.max(40,Math.floor(rand(60,140)-score*0.05));
+    spawnObstacle();
+    if(Math.random()<0.6)spawnDecoration();
+  }
+
+  for(let i=decoration.length-1;i>=0;i--){decoration[i].x-=decoration[i].speed;if(decoration[i].x+decoration[i].w<-50)decoration.splice(i,1);}
+  for(let i=obstacles.length-1;i>=0;i--){obstacles[i].x-=scrollSpeed;if(obstacles[i].x+obstacles[i].w<-100)obstacles.splice(i,1);}
+
+  player.vy+=player.gravity;
+  player.y+=player.vy;
+  if(player.y>=groundY){player.y=groundY;player.vy=0;player.jumpsLeft=player.maxJumps;}
+  if(keys['ArrowRight']||keys['KeyD'])player.x+=2.4;
+  if(keys['ArrowLeft']||keys['KeyA'])player.x-=2.4;
+  player.x=Math.max(40,Math.min(player.x,260));
+
+  checkCollisions();
+  render();
+  requestAnimationFrame(loop);
+}
+
+function render(){
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#071428';ctx.fillRect(0,0,W,H);
+  for(const d of decoration){
+    ctx.save();ctx.globalAlpha=0.1;ctx.fillStyle='#f7d08a';
+    ctx.beginPath();ctx.arc(d.x,d.y,d.w/2,0,Math.PI*2);ctx.fill();ctx.restore();
+  }
+  ctx.fillStyle='rgba(8,24,36,0.95)';
+  ctx.fillRect(0,groundY+player.h*0.1,W,H-groundY);
+  ctx.fillStyle='#0f3a55';
+  const tileW=40,offset=(Date.now()*0.02*scrollSpeed)%tileW;
+  for(let x=-tileW;x<W+tileW;x+=tileW){ctx.fillRect(x-offset,groundY+player.h*0.1,tileW-8,12);}
+  for(const ob of obstacles){
+    if(ob.type==='box'){ctx.fillStyle='#ff6b6b';ctx.fillRect(ob.x,ob.y,ob.w,ob.h);}
+    else if(ob.type==='spikes'){ctx.fillStyle='#ff7b7b';for(let sx=0;sx<ob.w;sx+=14){ctx.beginPath();ctx.moveTo(ob.x+sx,ob.y+ob.h);ctx.lineTo(ob.x+sx+7,ob.y);ctx.lineTo(ob.x+sx+14,ob.y+ob.h);ctx.closePath();ctx.fill();}}
+    else{ctx.fillStyle='#ffb86b';ctx.fillRect(ob.x,ob.y,ob.w,ob.h);}
+  }
+  drawPlayer();
+}
+function drawPlayer(){
+  const px=player.x,py=player.y-player.h;
+  ctx.fillStyle='rgba(0,0,0,0.2)';
+  ctx.beginPath();ctx.ellipse(px+player.w/2,player.y+8,player.w*0.6,8,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#f9d974';ctx.fillRect(px,py+6,player.w,player.h-6);
+  ctx.fillStyle='#ffddb2';ctx.beginPath();ctx.arc(px+player.w/2,py+10,10,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#222';ctx.fillRect(px+player.w/2-6,py+6,3,3);ctx.fillRect(px+player.w/2+3,py+6,3,3);
+  ctx.fillStyle='#334155';ctx.fillRect(px+player.w/2-4,py+18,8,18);
+  ctx.fillStyle='#374151';ctx.fillRect(px+player.w-6,py+player.h-18,16,12);
+}
+</script>
+</body>
+</html>

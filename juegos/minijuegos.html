@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Focus Garden 🌿 — Juegos de Disciplina</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Poppins", sans-serif;
+    background: linear-gradient(135deg, #b3ffab, #12fff7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    color: #222;
+    text-align: center;
+  }
+
+  h1 {
+    font-size: 2rem;
+    margin-top: 10px;
+    color: #1e3a8a;
+  }
+
+  .menu {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px 0;
+  }
+
+  button {
+    padding: 12px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #2575fc, #6a11cb);
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  button:hover {
+    transform: scale(1.05);
+  }
+
+  section {
+    display: none;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 500px;
+  }
+
+  section.active {
+    display: block;
+  }
+
+  #timer {
+    font-size: 3rem;
+    margin: 20px 0;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(4, 60px);
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .card {
+    width: 60px;
+    height: 60px;
+    background: #8b5cf6;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .card.flipped {
+    background: #a78bfa;
+  }
+
+  .simon-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 100px);
+    grid-gap: 10px;
+    justify-content: center;
+  }
+
+  .color-btn {
+    width: 100px;
+    height: 100px;
+    border-radius: 10px;
+    cursor: pointer;
+    opacity: 0.8;
+  }
+
+  .red { background: red; }
+  .blue { background: blue; }
+  .green { background: green; }
+  .yellow { background: yellow; }
+
+  .active-color { opacity: 1; }
+
+  footer {
+    margin-top: 30px;
+    font-size: 0.9rem;
+    color: #333;
+  }
+</style>
+</head>
+<body>
+
+<h1>🌿 Focus Garden — Juegos de Disciplina</h1>
+<p>Entrena tu mente, mejora tu enfoque y controla el tiempo ⏱️</p>
+
+<div class="menu">
+  <button onclick="openGame('pomodoro')">🍅 Pomodoro</button>
+  <button onclick="openGame('memoria')">🧠 Memoria</button>
+  <button onclick="openGame('enfoque')">🎯 Enfoque</button>
+  <button onclick="openGame('decision')">⚖️ Decisión</button>
+  <button onclick="openGame('simon')">🔵 Simón Dice</button>
+  <button onclick="openGame('secuencia')">🔢 Secuencia</button>
+</div>
+
+<!-- Pomodoro -->
+<section id="pomodoro">
+  <h2>🍅 Pomodoro</h2>
+  <p>Trabaja 25 minutos y descansa 5.</p>
+  <div id="timer">25:00</div>
+  <button onclick="startPomodoro()">Iniciar</button>
+  <button onclick="resetPomodoro()">Reiniciar</button>
+</section>
+
+<!-- Memoria -->
+<section id="memoria">
+  <h2>🧠 Juego de Memoria</h2>
+  <div class="cards" id="memoryBoard"></div>
+  <p id="memoryMessage"></p>
+</section>
+
+<!-- Enfoque -->
+<section id="enfoque">
+  <h2>🎯 Juego del Enfoque</h2>
+  <p>Haz clic en el círculo azul cuando aparezca.</p>
+  <div id="focusArea" style="width:300px;height:200px;background:#eee;position:relative;margin:auto;"></div>
+  <p id="focusMessage"></p>
+</section>
+
+<!-- Decisión -->
+<section id="decision">
+  <h2>⚖️ Toma de Decisiones</h2>
+  <p>Elige rápidamente la opción correcta.</p>
+  <p id="decisionQuestion"></p>
+  <div id="decisionOptions"></div>
+  <p id="decisionMessage"></p>
+</section>
+
+<!-- Simón -->
+<section id="simon">
+  <h2>🔵 Simón Dice</h2>
+  <div class="simon-buttons">
+    <div class="color-btn red" onclick="pressColor('red')"></div>
+    <div class="color-btn blue" onclick="pressColor('blue')"></div>
+    <div class="color-btn green" onclick="pressColor('green')"></div>
+    <div class="color-btn yellow" onclick="pressColor('yellow')"></div>
+  </div>
+  <p id="simonMessage"></p>
+  <button onclick="startSimon()">Iniciar</button>
+</section>
+
+<!-- Secuencia -->
+<section id="secuencia">
+  <h2>🔢 Juego de Secuencia</h2>
+  <p>Recuerda los números en orden.</p>
+  <p id="sequenceDisplay"></p>
+  <input id="sequenceInput" placeholder="Escribe la secuencia..." />
+  <button onclick="checkSequence()">Comprobar</button>
+  <p id="sequenceMessage"></p>
+</section>
+
+<footer>Entrena tu tiempo y disciplina mental</footer>
+
+<script>
+function openGame(id) {
+  document.querySelectorAll("section").forEach(sec => sec.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+/* 🕐 Pomodoro */
+let pomodoroTimer, timeLeft = 25 * 60;
+function startPomodoro() {
+  clearInterval(pomodoroTimer);
+  pomodoroTimer = setInterval(() => {
+    timeLeft--;
+    let m = Math.floor(timeLeft / 60);
+    let s = timeLeft % 60;
+    document.getElementById("timer").textContent = `${m}:${s.toString().padStart(2, "0")}`;
+    if (timeLeft <= 0) {
+      clearInterval(pomodoroTimer);
+      alert("¡Tiempo terminado! Descansa 5 minutos ☕");
+      timeLeft = 25 * 60;
+    }
+  }, 1000);
+}
+function resetPomodoro() {
+  clearInterval(pomodoroTimer);
+  timeLeft = 25 * 60;
+  document.getElementById("timer").textContent = "25:00";
+}
+
+/* 🧠 Memoria */
+const emojis = ['🍎','🍌','🍒','🍓','🍇','🍉'];
+let cards = [...emojis, ...emojis];
+let flipped = [];
+function startMemory() {
+  const board = document.getElementById("memoryBoard");
+  board.innerHTML = "";
+  cards.sort(() => 0.5 - Math.random());
+  cards.forEach((emoji, i) => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.onclick = () => flipCard(div, emoji);
+    board.appendChild(div);
+  });
+}
+function flipCard(card, emoji) {
+  if (card.classList.contains("flipped")) return;
+  card.textContent = emoji;
+  card.classList.add("flipped");
+  flipped.push({ card, emoji });
+  if (flipped.length === 2) {
+    if (flipped[0].emoji === flipped[1].emoji) {
+      flipped = [];
+      if (document.querySelectorAll(".card:not(.flipped)").length === 0)
+        document.getElementById("memoryMessage").textContent = "¡Completado! 🥳";
+    } else {
+      setTimeout(() => {
+        flipped.forEach(f => { f.card.textContent = ""; f.card.classList.remove("flipped"); });
+        flipped = [];
+      }, 800);
+    }
+  }
+}
+startMemory();
+
+/* 🎯 Enfoque */
+let targetTimeout;
+function spawnTarget() {
+  const area = document.getElementById("focusArea");
+  area.innerHTML = "";
+  const circle = document.createElement("div");
+  circle.style.width = "40px";
+  circle.style.height = "40px";
+  circle.style.borderRadius = "50%";
+  circle.style.background = "blue";
+  circle.style.position = "absolute";
+  circle.style.left = Math.random() * 260 + "px";
+  circle.style.top = Math.random() * 160 + "px";
+  circle.onclick = () => {
+    document.getElementById("focusMessage").textContent = "¡Bien hecho!";
+    clearTimeout(targetTimeout);
+    setTimeout(spawnTarget, 1500);
+  };
+  area.appendChild(circle);
+}
+spawnTarget();
+
+/* ⚖️ Decisión */
+const questions = [
+  {q: "¿Qué es mayor?", a: "9", opts: ["7", "9", "5"]},
+  {q: "¿Color del cielo?", a: "azul", opts: ["rojo", "azul", "verde"]},
+];
+let qIndex = 0;
+function showDecision() {
+  const q = questions[qIndex];
+  document.getElementById("decisionQuestion").textContent = q.q;
+  const div = document.getElementById("decisionOptions");
+  div.innerHTML = "";
+  q.opts.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.textContent = opt;
+    btn.onclick = () => checkDecision(opt);
+    div.appendChild(btn);
+  });
+}
+function checkDecision(opt) {
+  const q = questions[qIndex];
+  document.getElementById("decisionMessage").textContent =
+    opt === q.a ? "✅ Correcto" : "❌ Incorrecto";
+  qIndex = (qIndex + 1) % questions.length;
+  setTimeout(showDecision, 1500);
+}
+showDecision();
+
+/* 🔵 Simón Dice */
+let simonSequence = [], userSequence = [], colors = ["red","blue","green","yellow"];
+function startSimon() {
+  userSequence = [];
+  simonSequence.push(colors[Math.floor(Math.random()*4)]);
+  playSimon();
+}
+function playSimon() {
+  let i = 0;
+  const interval = setInterval(() => {
+    highlightColor(simonSequence[i]);
+    i++;
+    if (i >= simonSequence.length) clearInterval(interval);
+  }, 800);
+}
+function highlightColor(color) {
+  const btn = document.querySelector("." + color);
+  btn.classList.add("active-color");
+  setTimeout(() => btn.classList.remove("active-color"), 400);
+}
+function pressColor(color) {
+  userSequence.push(color);
+  if (!simonSequence[userSequence.length-1].startsWith(color)) {
+    document.getElementById("simonMessage").textContent = "❌ Fallaste";
+    simonSequence = [];
+    return;
+  }
+  if (userSequence.length === simonSequence.length) {
+    document.getElementById("simonMessage").textContent = "✅ Bien hecho";
+    userSequence = [];
+    setTimeout(startSimon, 1000);
+  }
+}
+
+/* 🔢 Secuencia */
+let sequence = [];
+function newSequence() {
+  sequence.push(Math.floor(Math.random() * 9));
+  document.getElementById("sequenceDisplay").textContent = sequence.join(" ");
+  setTimeout(() => document.getElementById("sequenceDisplay").textContent = "???", 1500);
+}
+function checkSequence() {
+  const input = document.getElementById("sequenceInput").value;
+  if (input === sequence.join("")) {
+    document.getElementById("sequenceMessage").textContent = "✅ Correcto";
+    document.getElementById("sequenceInput").value = "";
+    newSequence();
+  } else {
+    document.getElementById("sequenceMessage").textContent = "❌ Fallaste";
+    sequence = [];
+  }
+}
+newSequence();
+</script>
+
+</body>
+</html>

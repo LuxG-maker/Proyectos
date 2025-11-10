@@ -36,6 +36,27 @@ body{font-family:var(--font-body);margin:0;background:#fff;color:var(--dark)}
 .footer{font-size:.95rem}
 .footer a{text-decoration:none}
 
+.CJuegos{
+  display: flex;
+  margin: 15px;
+  justify-content: center;
+}
+
+.Games{
+  display: flex;
+  width: 33%;
+  height: 20em;
+  background-color: #10b981;
+  margin: 2%;
+  border-radius: 25px;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 40px;
+  font-family: var(--font-head);
+}
+
 @media (max-width:767px){
   .hero-recursos{padding:4rem 0}
   .brand-title{font-size:1.2rem}

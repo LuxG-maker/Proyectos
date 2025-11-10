@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>⏰ Pac-Time — Reloj del Tiempo</title>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    overflow: hidden;
+    background: radial-gradient(circle at center, #0a0a1a 40%, #000 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+    font-family: "Poppins", sans-serif;
+  }
+
+  h1 {
+    text-shadow: 0 0 10px #fff;
+    margin: 10px 0 0;
+  }
+
+  #ui {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+
+  #timer {
+    font-size: 1.2rem;
+  }
+
+  #pauseBtn {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #2575fc, #6a11cb);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  #pauseBtn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(255,255,255,0.3);
+  }
+
+  canvas {
+    border: 4px solid #ffcf40;
+    border-radius: 20px;
+    box-shadow: 0 0 30px rgba(255,223,0,0.5);
+    background: radial-gradient(circle at center, #1a1a3a 0%, #090920 100%);
+  }
+
+</style>
+</head>
+<body>
+  <h1>⏱️ Pac-Time — Escapa del reloj del tiempo</h1>
+
+  <div id="ui">
+    <div id="timer">Tiempo: 0.0s</div>
+    <button id="pauseBtn">⏸️ Pausar</button>
+  </div>
+
+  <canvas id="game" width="700" height="700"></canvas>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const W = canvas.width;
+const H = canvas.height;
+
+const pacman = { x: W/2, y: H/2, r: 15, speed: 4, dx: 0, dy: 0 };
+const ghosts = [
+  { x: 100, y: 100, color: "red" },
+  { x: 600, y: 100, color: "cyan" },
+  { x: 100, y: 600, color: "orange" },
+  { x: 600, y: 600, color: "pink" }
+];
+
+let pellets = [];
+let paused = false;
+let startTime = Date.now();
+let elapsed = 0;
+
+// Generar esferas (bolas de comida)
+function generatePellets() {
+  pellets = [];
+  for (let i = 60; i < W; i += 60) {
+    for (let j = 60; j < H; j += 60) {
+      pellets.push({ x: i, y: j, eaten: false });
+    }
+  }
+}
+
+// Fondo estilo reloj
+function drawClock() {
+  const cx = W/2, cy = H/2;
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.strokeStyle = "#ffcf40";
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.arc(0, 0, 300, 0, Math.PI * 2);
+  ctx.stroke();
+  for (let i=0;i<12;i++){
+    const angle = i*(Math.PI*2/12);
+    const x1 = Math.cos(angle)*270;
+    const y1 = Math.sin(angle)*270;
+    const x2 = Math.cos(angle)*300;
+    const y2 = Math.sin(angle)*300;
+    ctx.beginPath();
+    ctx.moveTo(x1,y1);
+    ctx.lineTo(x2,y2);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+// Dibujar Pac-Man
+function drawPacman() {
+  ctx.beginPath();
+  ctx.fillStyle = "yellow";
+  const mouth = Math.abs(Math.sin(Date.now()/150));
+  ctx.moveTo(pacman.x,pacman.y);
+  ctx.arc(pacman.x,pacman.y,pacman.r,mouth*0.5,Math.PI*2-mouth*0.5);
+  ctx.lineTo(pacman.x,pacman.y);
+  ctx.fill();
+}
+
+// Dibujar fantasmas
+function drawGhosts() {
+  ghosts.forEach(g => {
+    ctx.beginPath();
+    ctx.fillStyle = g.color;
+    ctx.arc(g.x,g.y,15,0,Math.PI,true);
+    ctx.rect(g.x-15,g.y,30,15);
+    ctx.fill();
+
+    ctx.fillStyle="white";
+    ctx.beginPath();
+    ctx.arc(g.x-6,g.y-2,3,0,Math.PI*2);
+    ctx.arc(g.x+6,g.y-2,3,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle="blue";
+    ctx.beginPath();
+    ctx.arc(g.x-6,g.y-2,1.5,0,Math.PI*2);
+    ctx.arc(g.x+6,g.y-2,1.5,0,Math.PI*2);
+    ctx.fill();
+  });
+}
+
+// Dibujar esferas
+function drawPellets() {
+  pellets.forEach(p => {
+    if (!p.eaten) {
+      ctx.beginPath();
+      ctx.fillStyle = "#fff";
+      ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
+}
+
+// Mover Pac-Man
+function movePacman() {
+  pacman.x += pacman.dx;
+  pacman.y += pacman.dy;
+  if (pacman.x < pacman.r) pacman.x = pacman.r;
+  if (pacman.x > W - pacman.r) pacman.x = W - pacman.r;
+  if (pacman.y < pacman.r) pacman.y = pacman.r;
+  if (pacman.y > H - pacman.r) pacman.y = H - pacman.r;
+}
+
+// Movimiento de fantasmas (persiguen)
+function moveGhosts() {
+  ghosts.forEach(g => {
+    const dx = pacman.x - g.x;
+    const dy = pacman.y - g.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    const speed = 1.4;
+    if (dist>0){
+      g.x += (dx/dist)*speed;
+      g.y += (dy/dist)*speed;
+    }
+  });
+}
+
+// Comer esferas
+function eatPellets() {
+  pellets.forEach(p => {
+    const dx = pacman.x - p.x;
+    const dy = pacman.y - p.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (dist < pacman.r + 5 && !p.eaten) {
+      p.eaten = true;
+    }
+  });
+}
+
+// Colisión con fantasmas
+function checkCollision() {
+  for (const g of ghosts) {
+    const dx = pacman.x - g.x;
+    const dy = pacman.y - g.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (dist < pacman.r + 12) {
+      ctx.fillStyle = "rgba(0,0,0,0.6)";
+      ctx.fillRect(0,0,W,H);
+      ctx.fillStyle = "#ff4444";
+      ctx.font = "bold 40px Poppins";
+      ctx.fillText("💀 ¡Te atraparon!", W/2 - 150, H/2);
+      cancelAnimationFrame(loopId);
+      return true;
+    }
+  }
+  return false;
+}
+
+// Controles
+document.addEventListener("keydown", e => {
+  const key = e.key.toLowerCase();
+  if (key==="arrowup"||key==="w"){pacman.dy=-pacman.speed;pacman.dx=0;}
+  if (key==="arrowdown"||key==="s"){pacman.dy=pacman.speed;pacman.dx=0;}
+  if (key==="arrowleft"||key==="a"){pacman.dx=-pacman.speed;pacman.dy=0;}
+  if (key==="arrowright"||key==="d"){pacman.dx=pacman.speed;pacman.dy=0;}
+});
+
+document.addEventListener("keyup", e => {
+  const key = e.key.toLowerCase();
+  if (["arrowup","arrowdown","arrowleft","arrowright","w","a","s","d"].includes(key)){
+    pacman.dx=0; pacman.dy=0;
+  }
+});
+
+// Timer
+const timerDisplay = document.getElementById("timer");
+function updateTimer() {
+  elapsed = (Date.now() - startTime) / 1000;
+  timerDisplay.textContent = `Tiempo: ${elapsed.toFixed(1)}s`;
+}
+
+// Pausar / Reanudar
+document.getElementById("pauseBtn").onclick = () => {
+  paused = !paused;
+  document.getElementById("pauseBtn").textContent = paused ? "▶️ Reanudar" : "⏸️ Pausar";
+  if (!paused) startTime = Date.now() - elapsed * 1000;
+  if (!paused) gameLoop();
+};
+
+// Bucle principal
+let loopId;
+function gameLoop() {
+  if (paused) return;
+  ctx.clearRect(0,0,W,H);
+  drawClock();
+  drawPellets();
+  drawPacman();
+  drawGhosts();
+  movePacman();
+  moveGhosts();
+  eatPellets();
+  updateTimer();
+  if (!checkCollision()) loopId = requestAnimationFrame(gameLoop);
+}
+
+// Iniciar
+generatePellets();
+gameLoop();
+</script>
+</body>
+</html>
